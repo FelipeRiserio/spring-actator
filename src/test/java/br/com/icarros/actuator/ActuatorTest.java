@@ -1,9 +1,11 @@
 package br.com.icarros.actuator;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsString;
@@ -13,33 +15,35 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-class ActuatorTest {
+public class ActuatorTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    void deveRetornar200AoBaterNoHealthCheck() throws Exception {
-        mockMvc.perform(get("/actuator/health"))
+    public void deveRetornar200AoBaterNoHealthCheck() throws Exception {
+        mockMvc.perform(get("/health"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", containsString("UP")))
                 .andExpect(jsonPath("$.*", hasSize(1)));
     }
 
+
     @Test
-    void deveRetornar404AoBaterNoEnv() throws Exception {
-        mockMvc.perform(get("/actuator/env"))
+    public void deveRetornar401AoBaterNoEnv() throws Exception {
+        mockMvc.perform(get("/env"))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void deveRetornar404AoBaterNoHeapDump() throws Exception {
-        mockMvc.perform(get("/actuator/heapdump"))
+    public void deveRetornar401AoBaterNoHeapDump() throws Exception {
+        mockMvc.perform(get("/heapdump"))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnauthorized());
     }
 }
